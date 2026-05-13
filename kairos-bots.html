@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built By Kairos — Agent Hub</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background:#000;
+  font-family:'Arial Black', Arial, sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+canvas#stars {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap {
+  position:relative;
+  z-index:2;
+  max-width:960px;
+  margin:0 auto;
+  padding:0 32px;
+}
+
+header {
+  padding:40px 0 32px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo-img {
+  width:44px;
+  height:44px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 12px rgba(255,255,255,0.25));
+}
+
+.logo-name {
+  font-size:20px;
+  font-weight:900;
+  color:#fff;
+  text-transform:uppercase;
+  font-style:italic;
+  letter-spacing:0.04em;
+  text-shadow:0 0 20px rgba(255,255,255,0.3);
+}
+
+.logo-tag {
+  font-size:11px;
+  color:rgba(255,255,255,0.3);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-family:Arial,sans-serif;
+  font-weight:400;
+  font-style:normal;
+  margin-left:auto;
+}
+
+.hero {
+  padding:8px 0 48px;
+}
+
+.hero h1 {
+  font-size:clamp(28px,4vw,46px);
+  font-weight:900;
+  color:#fff;
+  text-transform:uppercase;
+  font-style:italic;
+  letter-spacing:-0.02em;
+  line-height:1.1;
+  margin-bottom:12px;
+  text-shadow:0 0 30px rgba(255,255,255,0.25),0 0 60px rgba(255,255,255,0.1);
+}
+
+.hero p {
+  font-size:15px;
+  color:rgba(255,255,255,0.4);
+  line-height:1.6;
+  font-family:Arial,sans-serif;
+  font-weight:400;
+  font-style:normal;
+  max-width:520px;
+}
+
+.agents {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;
+  padding-bottom:60px;
+}
+
+.agent-card {
+  background:rgba(255,255,255,0.06);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.1);
+  padding:26px;
+  cursor:pointer;
+  transition:transform 0.18s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+.agent-card::before {
+  content:'';
+  position:absolute;
+  top:-80px; right:-80px;
+  width:200px; height:200px;
+  border-radius:50%;
+  opacity:0.08;
+  transition:opacity 0.3s ease;
+  pointer-events:none;
+}
+
+.agent-card:hover { transform:translateY(-3px); }
+.agent-card:hover::before { opacity:0.2; }
+
+.blue::before { background:radial-gradient(circle,#2176FF 0%,transparent 70%); }
+.purple::before { background:radial-gradient(circle,#9b6fff 0%,transparent 70%); }
+.teal::before { background:radial-gradient(circle,#00e5c0 0%,transparent 70%); }
+.coral::before { background:radial-gradient(circle,#ff4d6d 0%,transparent 70%); }
+.amber::before { background:radial-gradient(circle,#ffb347 0%,transparent 70%); }
+
+.blue { background: rgba(33,118,255,0.07); }
+.purple { background: rgba(155,111,255,0.07); }
+.teal { background: rgba(0,229,192,0.07); }
+.coral { background: rgba(255,77,109,0.07); }
+.amber { background: rgba(255,179,71,0.07); }
+.blue:hover { border-color:rgba(33,118,255,0.4); box-shadow:0 0 40px rgba(33,118,255,0.12),0 0 80px rgba(33,118,255,0.06); }
+.purple:hover { border-color:rgba(155,111,255,0.4); box-shadow:0 0 40px rgba(155,111,255,0.12),0 0 80px rgba(155,111,255,0.06); }
+.teal:hover { border-color:rgba(0,229,192,0.4); box-shadow:0 0 40px rgba(0,229,192,0.12),0 0 80px rgba(0,229,192,0.06); }
+.coral:hover { border-color:rgba(255,77,109,0.4); box-shadow:0 0 40px rgba(255,77,109,0.12),0 0 80px rgba(255,77,109,0.06); }
+.amber:hover { border-color:rgba(255,179,71,0.4); box-shadow:0 0 40px rgba(255,179,71,0.12),0 0 80px rgba(255,179,71,0.06); }
+
+.agent-icon {
+  width:48px; height:48px;
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:18px;
+}
+
+.agent-icon svg { width:24px; height:24px; }
+
+.blue .agent-icon { background:rgba(33,118,255,0.12); border:1px solid rgba(33,118,255,0.25); }
+.purple .agent-icon { background:rgba(155,111,255,0.12); border:1px solid rgba(155,111,255,0.25); }
+.teal .agent-icon { background:rgba(0,229,192,0.12); border:1px solid rgba(0,229,192,0.25); }
+.coral .agent-icon { background:rgba(255,77,109,0.12); border:1px solid rgba(255,77,109,0.25); }
+.amber .agent-icon { background:rgba(255,179,71,0.12); border:1px solid rgba(255,179,71,0.25); }
+
+.blue .agent-icon svg { stroke:#2176FF; }
+.purple .agent-icon svg { stroke:#9b6fff; }
+.teal .agent-icon svg { stroke:#00e5c0; }
+.coral .agent-icon svg { stroke:#ff4d6d; }
+.amber .agent-icon svg { stroke:#ffb347; }
+
+.agent-name {
+  font-size:17px;
+  font-weight:900;
+  color:#fff;
+  text-transform:uppercase;
+  font-style:italic;
+  letter-spacing:0.01em;
+  margin-bottom:8px;
+  text-shadow:0 0 16px rgba(255,255,255,0.2);
+}
+
+.agent-desc {
+  font-size:13px;
+  color:rgba(255,255,255,0.38);
+  line-height:1.55;
+  font-family:Arial,sans-serif;
+  font-weight:400;
+  font-style:normal;
+  margin-bottom:18px;
+}
+
+.agent-tags {
+  display:flex; flex-wrap:wrap; gap:6px;
+}
+
+.tag {
+  font-size:11px;
+  padding:3px 9px;
+  border-radius:20px;
+  font-family:Arial,sans-serif;
+  font-weight:400;
+  font-style:normal;
+  letter-spacing:0.03em;
+}
+
+.blue .tag { background:rgba(33,118,255,0.1); color:rgba(33,118,255,0.8); border:1px solid rgba(33,118,255,0.2); }
+.purple .tag { background:rgba(155,111,255,0.1); color:rgba(155,111,255,0.8); border:1px solid rgba(155,111,255,0.2); }
+.teal .tag { background:rgba(0,229,192,0.1); color:rgba(0,229,192,0.8); border:1px solid rgba(0,229,192,0.2); }
+.coral .tag { background:rgba(255,77,109,0.1); color:rgba(255,77,109,0.8); border:1px solid rgba(255,77,109,0.2); }
+.amber .tag { background:rgba(255,179,71,0.1); color:rgba(255,179,71,0.8); border:1px solid rgba(255,179,71,0.2); }
+
+.agent-arrow {
+  position:absolute; bottom:22px; right:22px;
+  font-size:18px; opacity:0;
+  transition:opacity 0.18s ease;
+  font-style:normal;
+}
+
+.blue .agent-arrow { color:#2176FF; }
+.purple .agent-arrow { color:#9b6fff; }
+.teal .agent-arrow { color:#00e5c0; }
+.coral .agent-arrow { color:#ff4d6d; }
+.amber .agent-arrow { color:#ffb347; }
+
+.agent-card:hover .agent-arrow { opacity:1; }
+
+/* CHAT */
+.chat-wrap {
+  display:none;
+  background:rgba(255,255,255,0.02);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.1);
+  overflow:hidden;
+  margin-bottom:60px;
+}
+
+.chat-wrap.active { display:block; }
+
+.chat-header {
+  padding:14px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex; align-items:center; gap:12px;
+}
+
+.chat-header-icon {
+  width:34px; height:34px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.chat-header-icon svg { width:18px; height:18px; }
+
+.chat-header-name {
+  font-size:14px; font-weight:900;
+  color:#fff; text-transform:uppercase;
+  font-style:italic;
+  letter-spacing:0.02em;
+}
+
+.chat-header-status {
+  font-size:12px; color:rgba(255,255,255,0.3);
+  margin-left:auto; display:flex;
+  align-items:center; gap:5px;
+  font-family:Arial,sans-serif;
+}
+
+.status-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:#00e5c0;
+  box-shadow:0 0 8px #00e5c0;
+}
+
+.chat-back {
+  background:none; border:none;
+  color:rgba(255,255,255,0.35);
+  font-size:13px; cursor:pointer;
+  padding:0; display:flex; align-items:center; gap:4px;
+  transition:color 0.15s; font-family:Arial,sans-serif;
+}
+.chat-back:hover { color:rgba(255,255,255,0.7); }
+
+.chat-messages {
+  padding:20px; min-height:340px; max-height:500px;
+  overflow-y:auto; display:flex; flex-direction:column; gap:12px;
+}
+
+.msg {
+  max-width:80%; font-size:14px; line-height:1.55;
+  padding:11px 15px; border-radius:12px;
+  font-family:Arial,sans-serif;
+}
+
+.msg.bot {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.82);
+  align-self:flex-start;
+  border-radius:4px 12px 12px 12px;
+}
+
+.msg.user {
+  align-self:flex-end;
+  border-radius:12px 12px 4px 12px;
+  color:#fff;
+}
+
+.msg.blue-user { background:rgba(33,118,255,0.2); border:1px solid rgba(33,118,255,0.25); }
+.msg.purple-user { background:rgba(155,111,255,0.2); border:1px solid rgba(155,111,255,0.25); }
+.msg.teal-user { background:rgba(0,229,192,0.2); border:1px solid rgba(0,229,192,0.25); }
+.msg.coral-user { background:rgba(255,77,109,0.2); border:1px solid rgba(255,77,109,0.25); }
+.msg.amber-user { background:rgba(255,179,71,0.2); border:1px solid rgba(255,179,71,0.25); }
+
+.typing { display:flex; gap:5px; padding:12px 15px; align-self:flex-start; }
+.typing span {
+  width:6px; height:6px; border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  animation:bounce 1.2s infinite ease-in-out;
+}
+.typing span:nth-child(2) { animation-delay:0.2s; }
+.typing span:nth-child(3) { animation-delay:0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+.chat-input-wrap {
+  padding:14px 16px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  display:flex; gap:10px; align-items:flex-end;
+}
+
+.chat-input {
+  flex:1;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:10px; padding:10px 14px;
+  color:#fff; font-size:14px; resize:none;
+  outline:none; min-height:42px; max-height:120px;
+  font-family:Arial,sans-serif; line-height:1.5;
+  transition:border-color 0.15s;
+}
+.chat-input:focus { border-color:rgba(255,255,255,0.22); }
+.chat-input::placeholder { color:rgba(255,255,255,0.18); }
+
+.send-btn {
+  width:42px; height:42px; border-radius:10px;
+  border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; transition:opacity 0.15s, transform 0.1s;
+  flex-shrink:0; font-style:italic; font-weight:900;
+}
+.send-btn:hover { opacity:0.85; }
+.send-btn:active { transform:scale(0.95); }
+
+.blue-btn { background:#2176FF; color:#fff; box-shadow:0 0 20px rgba(33,118,255,0.5); }
+.purple-btn { background:#9b6fff; color:#fff; box-shadow:0 0 20px rgba(155,111,255,0.5); }
+.teal-btn { background:#00e5c0; color:#000; box-shadow:0 0 20px rgba(0,229,192,0.5); }
+.coral-btn { background:#ff4d6d; color:#fff; box-shadow:0 0 20px rgba(255,77,109,0.5); }
+.amber-btn { background:#ffb347; color:#000; box-shadow:0 0 20px rgba(255,179,71,0.5); }
+
+/* CTA BUTTON STYLE like website */
+.cta-btn {
+  display:inline-block;
+  padding:14px 36px;
+  border-radius:60px;
+  font-size:14px; font-weight:900;
+  text-transform:uppercase; font-style:italic;
+  letter-spacing:0.06em; cursor:pointer;
+  border:none; transition:opacity 0.15s, transform 0.1s;
+}
+.cta-btn:hover { opacity:0.88; transform:scale(1.02); }
+.cta-btn:active { transform:scale(0.97); }
+
+.summary-card {
+  background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; padding:16px; margin:4px 0;
+  font-size:13px; font-family:Arial,sans-serif;
+}
+
+.summary-card .s-title {
+  font-size:11px; color:rgba(255,255,255,0.3);
+  letter-spacing:0.08em; text-transform:uppercase;
+  margin-bottom:12px; font-weight:900;
+}
+
+.summary-row { display:flex; gap:10px; margin-bottom:7px; }
+.summary-key { color:rgba(255,255,255,0.35); min-width:120px; }
+.summary-val { color:rgba(255,255,255,0.82); }
+
+.confirm-btns { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+
+.btn-confirm {
+  padding:10px 22px; border-radius:60px; border:none;
+  font-size:13px; font-weight:900; cursor:pointer;
+  text-transform:uppercase; font-style:italic;
+  letter-spacing:0.05em; font-family:inherit;
+  transition:opacity 0.15s, transform 0.1s;
+}
+.btn-confirm:hover { opacity:0.88; }
+.btn-confirm:active { transform:scale(0.97); }
+
+.btn-cancel {
+  padding:10px 22px; border-radius:60px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.15);
+  font-size:13px; color:rgba(255,255,255,0.4);
+  cursor:pointer; font-family:inherit;
+  text-transform:uppercase; font-style:italic;
+  letter-spacing:0.05em; font-weight:900;
+  transition:border-color 0.15s;
+}
+.btn-cancel:hover { border-color:rgba(255,255,255,0.3); }
+
+.result-card {
+  background:rgba(0,229,192,0.06);
+  border:1px solid rgba(0,229,192,0.2);
+  border-radius:12px; padding:16px;
+  font-size:14px; font-family:Arial,sans-serif;
+}
+
+.result-card a { color:#00e5c0; text-decoration:none; word-break:break-all; }
+.result-card a:hover { text-decoration:underline; }
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+
+  <header>
+    <img src="https://static.wixstatic.com/media/273131_0eff1219462c4e058575a69a8c22a8e5~mv2.png/v1/fill/w_41,h_41,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/50090D77-FCD1-46F9-95AB-A8AE4C76B716.png" class="logo-img" alt="Kairos">
+    <span class="logo-name">Built By Kairos</span>
+    <span class="logo-tag">Agent Hub</span>
+  </header>
+
+  <div class="hero" id="heroBlock">
+    <h1>Which bot do<br>you need?</h1>
+    <p>Select an agent. It will ask everything it needs, then generate your deliverable automatically.</p>
+  </div>
+
+  <div class="agents" id="agentGrid">
+
+    <div class="agent-card blue" onclick="openAgent('website')">
+      <div class="agent-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="14" rx="2"/>
+          <path d="M8 21h8M12 17v4"/>
+          <path d="M3 7h18"/>
+          <circle cx="6" cy="5" r="0.8" fill="currentColor" stroke="none"/>
+          <circle cx="9" cy="5" r="0.8" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <div class="agent-name">Website Bot</div>
+      <div class="agent-desc">Full multi-page websites — service-based or ecommerce. Complete HTML with inline CSS, ready to deploy.</div>
+      <div class="agent-tags">
+        <span class="tag">Service-based</span>
+        <span class="tag">Ecommerce</span>
+        <span class="tag">3 pages</span>
+      </div>
+      <span class="agent-arrow">&#8599;</span>
+    </div>
+
+    <div class="agent-card purple" onclick="openAgent('email')">
+      <div class="agent-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 7l10 7 10-7"/>
+        </svg>
+      </div>
+      <div class="agent-name">Email Bot</div>
+      <div class="agent-desc">High-converting email sequences — welcome, nurture, launch, re-engagement and sales flows.</div>
+      <div class="agent-tags">
+        <span class="tag">Sequences</span>
+        <span class="tag">Launch</span>
+        <span class="tag">Nurture</span>
+      </div>
+      <span class="agent-arrow">&#8599;</span>
+    </div>
+
+    <div class="agent-card teal" onclick="openAgent('ads')">
+      <div class="agent-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 6v6l4 2"/>
+          <path d="M9 3.5C9 3.5 8 7 12 7s3-3.5 3-3.5"/>
+        </svg>
+      </div>
+      <div class="agent-name">Ads Bot</div>
+      <div class="agent-desc">Meta ads, UGC scripts, hooks, TikTok and YouTube ad copy. Static and video formats built to convert.</div>
+      <div class="agent-tags">
+        <span class="tag">Meta</span>
+        <span class="tag">UGC</span>
+        <span class="tag">Hook packs</span>
+      </div>
+      <span class="agent-arrow">&#8599;</span>
+    </div>
+
+    <div class="agent-card coral" onclick="openAgent('social')">
+      <div class="agent-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2"/>
+          <path d="M12 18h.01"/>
+          <path d="M9 6h6M9 10h6M9 14h3"/>
+        </svg>
+      </div>
+      <div class="agent-name">Social Bot</div>
+      <div class="agent-desc">Reels scripts, captions, story sequences and 30-day content plans across Instagram, TikTok and LinkedIn.</div>
+      <div class="agent-tags">
+        <span class="tag">Reels</span>
+        <span class="tag">Captions</span>
+        <span class="tag">Content plan</span>
+      </div>
+      <span class="agent-arrow">&#8599;</span>
+    </div>
+
+    <div class="agent-card amber" onclick="openAgent('landing')">
+      <div class="agent-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="14" rx="2"/>
+          <path d="M3 7h18"/>
+          <path d="M8 12h8M8 15h5"/>
+          <path d="M16 17l2 4"/>
+          <circle cx="16" cy="17" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <div class="agent-name">Landing Page Bot</div>
+      <div class="agent-desc">Single-page converters — sales pages, lead gen, book-a-call, webinar and product pages.</div>
+      <div class="agent-tags">
+        <span class="tag">Sales page</span>
+        <span class="tag">Lead gen</span>
+        <span class="tag">Book a call</span>
+      </div>
+      <span class="agent-arrow">&#8599;</span>
+    </div>
+
+  </div>
+
+  <div class="chat-wrap" id="chatWrap">
+    <div class="chat-header" id="chatHeader"></div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">&#10148;</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WEBHOOK_BASE = 'https://alexanderrendina.app.n8n.cloud/webhook/';
+const USER_EMAIL = 'alexanderrendin711@gmail.com';
+
+const agents = {
+  website: {
+    name:'Website Bot', color:'blue', webhook:'website-agent',
+    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#2176FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M3 7h18"/></svg>`,
+    questions:[
+      "Welcome. What's the name of the business or brand you're building this website for?",
+      "What does this business do? Give me a clear description of the offer or service.",
+      "Who is the target audience? Be specific — age, gender, pain points, aspirations.",
+      "What's the primary goal of the website? (e.g. book a call, sell a product, generate leads)",
+      "What type of website — service-based (coaching, consulting, agency) or ecommerce (products, shop)?",
+      "Describe the brand voice and tone. How should it feel? (e.g. bold and direct, warm, clinical, authoritative)",
+      "Any specific colours, fonts, or design preferences? Or a brand you admire the look of?",
+      "Do you have existing taglines, key messages, or brand language I should use?",
+      "Anything you specifically want to avoid — topics, styles, or competitors you don't want to resemble?",
+      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+    ]
+  },
+  email: {
+    name:'Email Bot', color:'purple', webhook:'email-agent',
+    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#9b6fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>`,
+    questions:[
+      "Welcome. What's the name of the business or brand these emails are for?",
+      "What type of email sequence do you need? (e.g. welcome, nurture, launch, re-engagement, post-purchase, sales)",
+      "How many emails in the sequence?",
+      "Who are these emails going to? Describe the audience — who they are, what they want, what they struggle with.",
+      "What's the offer or product being promoted in these emails?",
+      "What's the main goal of this sequence? (e.g. book a call, purchase, build trust, re-activate cold leads)",
+      "Describe the brand voice. How should these emails sound? (e.g. conversational, bold, empathetic, direct)",
+      "What platform are these going out on? (e.g. Klaviyo, ActiveCampaign, Mailchimp)",
+      "Any specific hooks, stories, or angles you want used? Or topics to avoid?",
+      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+    ]
+  },
+  ads: {
+    name:'Ads Bot', color:'teal', webhook:'ads-agent',
+    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#00e5c0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>`,
+    questions:[
+      "Welcome. What's the brand or business these ads are for?",
+      "What type of ad content do you need? (e.g. static Meta ad, video script, UGC script, hook pack, TikTok, YouTube)",
+      "What product or offer are you advertising?",
+      "Who is the target audience? Age, gender, platform, desires, fears.",
+      "What's the main goal of these ads? (e.g. drive traffic, generate leads, book calls, direct sales)",
+      "What platform are these ads running on? (e.g. Meta, TikTok, YouTube)",
+      "Describe the tone and energy. Urgent, inspirational, educational, conversational, or bold?",
+      "Any existing winning hooks or angles to build on? Or competitors doing it well?",
+      "Any compliance requirements or things that cannot be said?",
+      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+    ]
+  },
+  social: {
+    name:'Social Bot', color:'coral', webhook:'social-agent',
+    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/><path d="M9 6h6M9 10h6M9 14h3"/></svg>`,
+    questions:[
+      "Welcome. What's the brand or business this content is for?",
+      "What type of social content do you need? (e.g. Reels scripts, captions, Stories, 30-day content plan, TikTok, LinkedIn)",
+      "How many pieces of content do you need?",
+      "Which platform is this for? (Instagram, TikTok, LinkedIn, or multiple?)",
+      "Who is the target audience? Be specific about who you're trying to reach and what they care about.",
+      "What's the content goal? (e.g. grow followers, warm leads, drive traffic, build authority, sell)",
+      "Describe the brand voice for social. Casual or polished? Educational or entertaining?",
+      "What topics, themes or content pillars should be covered?",
+      "Any content formats or styles you love or want to avoid?",
+      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+    ]
+  },
+  landing: {
+    name:'Landing Page Bot', color:'amber', webhook:'landing-page-agent',
+    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#ffb347" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 7h18"/><path d="M8 12h8M8 15h5"/><path d="M17 18l2 3"/><circle cx="16.5" cy="17.5" r="1" fill="#ffb347" stroke="none"/></svg>`,
+    questions:[
+      "Welcome. What's the brand or business this landing page is for?",
+      "What type of landing page do you need? (e.g. sales page, lead gen, book a call, webinar, product page)",
+      "What is the offer on this page? Describe it — what's included, the outcome, the price if relevant.",
+      "Who is this page targeting? Describe the ideal person — their situation, desires, and biggest hesitations.",
+      "What's the single goal of this page? What should the visitor do? (e.g. book a call, enter email, buy now)",
+      "Describe the brand tone and voice. How should the copy feel? (e.g. bold and urgent, empathetic, premium)",
+      "What's the biggest transformation or result this offer delivers?",
+      "Do you have testimonials, proof points, or social proof to include?",
+      "Any design preferences — colours, style, brands you admire or want to avoid?",
+      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+    ]
+  }
+};
+
+let currentAgent=null, questionIndex=0, answers=[], awaitingConfirm=false, generating=false;
+
+function openAgent(key){
+  currentAgent=agents[key]; questionIndex=0; answers=[]; awaitingConfirm=false;
+  document.getElementById('agentGrid').style.display='none';
+  document.getElementById('heroBlock').style.display='none';
+  const wrap=document.getElementById('chatWrap');
+  wrap.className='chat-wrap active';
+  const c=currentAgent.color;
+  document.getElementById('chatHeader').innerHTML=`
+    <button class="chat-back" onclick="goBack()">&#8592; Back</button>
+    <div class="chat-header-icon ${c}-btn">${currentAgent.iconSvg}</div>
+    <span class="chat-header-name">${currentAgent.name}</span>
+    <span class="chat-header-status"><span class="status-dot"></span>Online</span>
+  `;
+  const sb=document.getElementById('sendBtn');
+  sb.className=`send-btn ${c}-btn`;
+  document.getElementById('chatMessages').innerHTML='';
+  setTimeout(()=>addBotMessage(currentAgent.questions[0]),400);
+}
+
+function goBack(){
+  document.getElementById('chatWrap').className='chat-wrap';
+  document.getElementById('agentGrid').style.display='grid';
+  document.getElementById('heroBlock').style.display='block';
+  currentAgent=null;
+}
+
+function addBotMessage(text){
+  const m=document.getElementById('chatMessages');
+  const t=document.createElement('div');
+  t.className='msg bot typing';
+  t.innerHTML='<span></span><span></span><span></span>';
+  m.appendChild(t); scrollBottom();
+  setTimeout(()=>{
+    t.remove();
+    const msg=document.createElement('div');
+    msg.className='msg bot';
+    msg.innerHTML=text;
+    m.appendChild(msg); scrollBottom();
+  },700);
+}
+
+function addUserMessage(text){
+  const m=document.getElementById('chatMessages');
+  const msg=document.createElement('div');
+  msg.className=`msg user ${currentAgent.color}-user`;
+  msg.textContent=text;
+  m.appendChild(msg); scrollBottom();
+}
+
+function scrollBottom(){
+  const m=document.getElementById('chatMessages');
+  setTimeout(()=>m.scrollTop=m.scrollHeight,50);
+}
+
+function handleKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+}
+
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,120)+'px';
+}
+
+function sendMessage(){
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text||generating)return;
+  input.value=''; input.style.height='auto';
+  addUserMessage(text);
+  if(awaitingConfirm){
+    const l=text.toLowerCase();
+    if(l.includes('yes')||l.includes('generate')||l.includes('go')||l.includes('confirm')||l.includes('do it')){
+      fireWebhook();
+    } else {
+      awaitingConfirm=false; questionIndex=0; answers=[];
+      setTimeout(()=>addBotMessage("No problem. Let's start fresh. "+currentAgent.questions[0]),500);
+    }
+    return;
+  }
+  answers.push(text);
+  questionIndex++;
+  if(questionIndex<currentAgent.questions.length){
+    setTimeout(()=>addBotMessage(currentAgent.questions[questionIndex]),500);
+  } else {
+    showSummary();
+  }
+}
+
+function showSummary(){
+  awaitingConfirm=true;
+  const q=currentAgent.questions;
+  const a=answers;
+  setTimeout(()=>{
+    const m=document.getElementById('chatMessages');
+    const t=document.createElement('div');
+    t.className='msg bot typing';
+    t.innerHTML='<span></span><span></span><span></span>';
+    m.appendChild(t); scrollBottom();
+    setTimeout(()=>{
+      t.remove();
+      const card=document.createElement('div');
+      card.className='msg bot'; card.style.maxWidth='94%';
+      let rows='';
+      const labels=['Business / Brand','What they do','Target audience','Primary goal','Type / Format','Brand voice & tone','Design preferences','Existing brand assets','What to avoid','Deadline'];
+      labels.forEach((lbl,i)=>{
+        rows+=`<div class="summary-row"><span class="summary-key">${lbl}</span><span class="summary-val">${a[i]||'—'}</span></div>`;
+      });
+      const colorMap={blue:'#2176FF',purple:'#9b6fff',teal:'#00e5c0',coral:'#ff4d6d',amber:'#ffb347'};
+      const col=colorMap[currentAgent.color];
+      const textCol=(currentAgent.color==='teal'||currentAgent.color==='amber')?'#000':'#fff';
+      card.innerHTML=`
+        <div class="summary-card">
+          <div class="s-title">Brief Summary</div>
+          ${rows}
+        </div>
+        <div style="margin-top:14px;font-size:14px;color:rgba(255,255,255,0.65);font-family:Arial,sans-serif;margin-bottom:14px;">Everything look right? I'll generate your deliverable now.</div>
+        <div class="confirm-btns">
+          <button class="btn-confirm" style="background:${col};color:${textCol};box-shadow:0 0 20px ${col}55;" onclick="fireWebhook()">Generate Now</button>
+          <button class="btn-cancel" onclick="cancelGenerate()">Start Over</button>
+        </div>
+      `;
+      m.appendChild(card); scrollBottom();
+    },800);
+  },300);
+}
+
+function cancelGenerate(){
+  awaitingConfirm=false; questionIndex=0; answers=[];
+  addBotMessage("No problem. Let's start again. "+currentAgent.questions[0]);
+}
+
+async function fireWebhook(){
+  generating=true; awaitingConfirm=false;
+  const a=answers; const agent=currentAgent;
+  const agentKey=Object.keys(agents).find(k=>agents[k]===agent);
+  const briefMap={
+    website:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]} — Target: ${a[2]} — Goal: ${a[3]} — Type: ${a[4]} | Website | ${a[3]} | ${a[9]} | ${a[5]}`,
+    email:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]}, ${a[2]} emails — Audience: ${a[3]} — Offer: ${a[4]} | Email | ${a[5]} | ${a[9]} | ${a[6]}`,
+    ads:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]} — Offer: ${a[2]} — Audience: ${a[3]} | ${a[5]} | ${a[4]} | ${a[9]} | ${a[6]}`,
+    social:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]}, ${a[2]} pieces — Platform: ${a[3]} — Audience: ${a[4]} | ${a[3]} | ${a[5]} | ${a[9]} | ${a[6]}`,
+    landing:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]} — Offer: ${a[2]} — Audience: ${a[3]} | Landing Page | ${a[4]} | ${a[9]} | ${a[5]}`
+  };
+  const brief=briefMap[agentKey]();
+  const webhookUrl=WEBHOOK_BASE+agent.webhook;
+  addBotMessage('Firing your brief to the Kairos system now. This usually takes 30–60 seconds...');
+  try {
+    const res=await fetch(webhookUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chatId:'8654408320',message:brief})
+    });
+    const data=await res.json();
+    setTimeout(()=>{
+      const m=document.getElementById('chatMessages');
+      const card=document.createElement('div');
+      card.className='msg bot'; card.style.maxWidth='94%';
+      card.innerHTML=`
+        <div class="result-card">
+          <div style="font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:6px;color:#00e5c0;font-size:13px;letter-spacing:0.06em;">Deliverable Ready</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:10px;">Your Google Doc has been created and saved to Drive.</div>
+          <a href="${data.doc_url||'#'}" target="_blank" style="font-weight:900;font-style:italic;text-transform:uppercase;font-size:13px;letter-spacing:0.04em;">Open Your Deliverable &#8599;</a>
+        </div>
+      `;
+      m.appendChild(card); scrollBottom();
+      generating=false;
+    },1000);
+  } catch(err){
+    setTimeout(()=>{
+      addBotMessage('Brief sent to Kairos. Check your Telegram — your Google Doc link will arrive within 60 seconds.');
+      generating=false;
+    },500);
+  }
+}
+
+// STAR BACKGROUND (extracted from builtbykairos.com)
+(function(){
+  var canvas=document.getElementById('stars');
+  var ctx=canvas.getContext('2d');
+  var stars=[],shoots=[],W,H;
+  var rainbow=['#e53935','#ff8f00','#fdd835','#43a047','#1e88e5','#8e24aa','#ffffff','#ffffff','#ffffff'];
+
+  function resize(){
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  function rb(a,b){return a+Math.random()*(b-a);}
+
+  for(var i=0;i<220;i++){
+    var c=Math.random()<0.08;
+    stars.push({
+      x:Math.random(),y:Math.random(),
+      r:rb(0.3,1.5),
+      alpha:rb(0.3,1),
+      ts:rb(0.004,0.015),
+      td:Math.random()<0.5?1:-1,
+      colour:c?rainbow[Math.floor(Math.random()*rainbow.length)]:'#ffffff',
+      glowing:c
+    });
+  }
+
+  function newShoot(){
+    return{
+      x:Math.random()*W,y:Math.random()*H*0.5,
+      len:rb(80,200),speed:rb(6,14),
+      angle:Math.PI/4+rb(-0.2,0.2),
+      alpha:1,alive:true
+    };
+  }
+
+  var lastShoot=0;
+
+  function frame(ts){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(function(s){
+      s.alpha+=s.ts*s.td;
+      if(s.alpha>=1){s.alpha=1;s.td=-1;}
+      if(s.alpha<=0.15){s.alpha=0.15;s.td=1;}
+      ctx.save();
+      if(s.glowing){ctx.shadowColor=s.colour;ctx.shadowBlur=8;}
+      ctx.globalAlpha=s.alpha;
+      ctx.fillStyle=s.colour;
+      ctx.beginPath();
+      ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    });
+    if(ts-lastShoot>4500){shoots.push(newShoot());lastShoot=ts;}
+    shoots=shoots.filter(function(s){return s.alive;});
+    shoots.forEach(function(s){
+      ctx.save();
+      ctx.globalAlpha=s.alpha*0.9;
+      var g=ctx.createLinearGradient(s.x,s.y,s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
+      g.addColorStop(0,'rgba(255,255,255,0.9)');
+      g.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.strokeStyle=g;ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(s.x,s.y);
+      ctx.lineTo(s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
+      ctx.stroke();ctx.restore();
+      s.x+=Math.cos(s.angle)*s.speed;
+      s.y+=Math.sin(s.angle)*s.speed;
+      s.alpha-=0.016;
+      if(s.alpha<=0||s.x>W+50||s.y>H+50)s.alive=false;
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
