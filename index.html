@@ -1059,9 +1059,8 @@ async function fireWebhook() {
       card.className = 'msg bot'; card.style.maxWidth = '94%';
       card.innerHTML = `
         <div class="result-card">
-          <div style="font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:6px;color:#00e5c0;font-size:13px;letter-spacing:0.06em;">Deliverable Ready</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:10px;">Your Google Doc has been created. Check Telegram for the link or open it below.</div>
-          <a href="${data.doc_url || '#'}" target="_blank" style="font-weight:900;font-style:italic;text-transform:uppercase;font-size:13px;letter-spacing:0.04em;">Open Your Deliverable &#8599;</a>
+          <div style="font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:8px;color:#00e5c0;font-size:13px;letter-spacing:0.06em;">&#10003; Deliverable On Its Way</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">Your brief has been sent to the Kairos system. Your Google Doc will arrive in your <strong style="color:rgba(255,255,255,0.8);">Telegram</strong> within 60 seconds.</div>
         </div>
       `;
       m.appendChild(card); scrollBottom();
@@ -1069,7 +1068,7 @@ async function fireWebhook() {
     }, 1000);
   } catch(err) {
     setTimeout(() => {
-      addBotMessage('Brief sent to Kairos. Check your Telegram — your Google Doc link will arrive within 60 seconds.');
+      addBotMessage('Brief sent to Kairos. Your Google Doc will arrive in your Telegram within 60 seconds.');
       generating = false;
     }, 500);
   }
