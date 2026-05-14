@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Built By Kairos — Agent Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -66,9 +67,128 @@ header {
   margin-left:auto;
 }
 
-.hero {
-  padding:8px 0 48px;
+/* ─── LOGIN SCREEN ─── */
+#loginScreen {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:70vh;
+  padding:40px 0;
 }
+
+.login-card {
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;
+  padding:40px;
+  width:100%;
+  max-width:420px;
+}
+
+.login-title {
+  font-size:22px;
+  font-weight:900;
+  color:#fff;
+  text-transform:uppercase;
+  font-style:italic;
+  letter-spacing:-0.01em;
+  margin-bottom:6px;
+  text-shadow:0 0 20px rgba(255,255,255,0.2);
+}
+
+.login-sub {
+  font-size:13px;
+  color:rgba(255,255,255,0.35);
+  font-family:Arial,sans-serif;
+  font-weight:400;
+  font-style:normal;
+  margin-bottom:28px;
+  line-height:1.5;
+}
+
+.field-label {
+  font-size:11px;
+  color:rgba(255,255,255,0.4);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  font-family:Arial,sans-serif;
+  font-weight:400;
+  font-style:normal;
+  margin-bottom:6px;
+  display:block;
+}
+
+.field-input {
+  width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:10px;
+  padding:12px 14px;
+  color:#fff;
+  font-size:14px;
+  font-family:Arial,sans-serif;
+  outline:none;
+  margin-bottom:16px;
+  transition:border-color 0.15s;
+}
+
+.field-input:focus {
+  border-color:rgba(33,118,255,0.5);
+  box-shadow:0 0 0 3px rgba(33,118,255,0.1);
+}
+
+.field-input::placeholder { color:rgba(255,255,255,0.2); }
+
+.login-btn {
+  width:100%;
+  padding:13px;
+  border-radius:60px;
+  border:none;
+  background:#2176FF;
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+  text-transform:uppercase;
+  font-style:italic;
+  letter-spacing:0.06em;
+  cursor:pointer;
+  box-shadow:0 0 24px rgba(33,118,255,0.4);
+  transition:opacity 0.15s, transform 0.1s;
+  font-family:inherit;
+  margin-top:4px;
+}
+
+.login-btn:hover { opacity:0.88; }
+.login-btn:active { transform:scale(0.98); }
+.login-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+.login-error {
+  background:rgba(255,77,109,0.1);
+  border:1px solid rgba(255,77,109,0.25);
+  border-radius:8px;
+  padding:10px 14px;
+  font-size:13px;
+  color:rgba(255,77,109,0.9);
+  font-family:Arial,sans-serif;
+  margin-top:14px;
+  display:none;
+}
+
+.login-error.show { display:block; }
+
+.login-divider {
+  text-align:center;
+  font-size:12px;
+  color:rgba(255,255,255,0.2);
+  font-family:Arial,sans-serif;
+  margin:16px 0;
+}
+
+/* ─── MAIN HUB ─── */
+#hubScreen { display:none; }
+
+.hero { padding:8px 0 48px; }
 
 .hero h1 {
   font-size:clamp(28px,4vw,46px);
@@ -92,6 +212,39 @@ header {
   max-width:520px;
 }
 
+.user-pill {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:60px;
+  padding:6px 14px 6px 8px;
+  font-size:12px;
+  color:rgba(255,255,255,0.5);
+  font-family:Arial,sans-serif;
+  margin-left:auto;
+  cursor:pointer;
+  transition:border-color 0.15s;
+}
+
+.user-pill:hover { border-color:rgba(255,255,255,0.2); }
+
+.user-dot {
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:#2176FF;
+  box-shadow:0 0 10px rgba(33,118,255,0.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:900;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+
 .agents {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -100,7 +253,6 @@ header {
 }
 
 .agent-card {
-  background:rgba(255,255,255,0.06);
   border-radius:16px;
   border:1px solid rgba(255,255,255,0.1);
   padding:26px;
@@ -124,22 +276,23 @@ header {
 .agent-card:hover { transform:translateY(-3px); }
 .agent-card:hover::before { opacity:0.2; }
 
+.blue { background:rgba(33,118,255,0.07); }
+.purple { background:rgba(155,111,255,0.07); }
+.teal { background:rgba(0,229,192,0.07); }
+.coral { background:rgba(255,77,109,0.07); }
+.amber { background:rgba(255,179,71,0.07); }
+
 .blue::before { background:radial-gradient(circle,#2176FF 0%,transparent 70%); }
 .purple::before { background:radial-gradient(circle,#9b6fff 0%,transparent 70%); }
 .teal::before { background:radial-gradient(circle,#00e5c0 0%,transparent 70%); }
 .coral::before { background:radial-gradient(circle,#ff4d6d 0%,transparent 70%); }
 .amber::before { background:radial-gradient(circle,#ffb347 0%,transparent 70%); }
 
-.blue { background: rgba(33,118,255,0.07); }
-.purple { background: rgba(155,111,255,0.07); }
-.teal { background: rgba(0,229,192,0.07); }
-.coral { background: rgba(255,77,109,0.07); }
-.amber { background: rgba(255,179,71,0.07); }
-.blue:hover { border-color:rgba(33,118,255,0.4); box-shadow:0 0 40px rgba(33,118,255,0.12),0 0 80px rgba(33,118,255,0.06); }
-.purple:hover { border-color:rgba(155,111,255,0.4); box-shadow:0 0 40px rgba(155,111,255,0.12),0 0 80px rgba(155,111,255,0.06); }
-.teal:hover { border-color:rgba(0,229,192,0.4); box-shadow:0 0 40px rgba(0,229,192,0.12),0 0 80px rgba(0,229,192,0.06); }
-.coral:hover { border-color:rgba(255,77,109,0.4); box-shadow:0 0 40px rgba(255,77,109,0.12),0 0 80px rgba(255,77,109,0.06); }
-.amber:hover { border-color:rgba(255,179,71,0.4); box-shadow:0 0 40px rgba(255,179,71,0.12),0 0 80px rgba(255,179,71,0.06); }
+.blue:hover { border-color:rgba(33,118,255,0.4); box-shadow:0 0 40px rgba(33,118,255,0.12); }
+.purple:hover { border-color:rgba(155,111,255,0.4); box-shadow:0 0 40px rgba(155,111,255,0.12); }
+.teal:hover { border-color:rgba(0,229,192,0.4); box-shadow:0 0 40px rgba(0,229,192,0.12); }
+.coral:hover { border-color:rgba(255,77,109,0.4); box-shadow:0 0 40px rgba(255,77,109,0.12); }
+.amber:hover { border-color:rgba(255,179,71,0.4); box-shadow:0 0 40px rgba(255,179,71,0.12); }
 
 .agent-icon {
   width:48px; height:48px;
@@ -183,9 +336,7 @@ header {
   margin-bottom:18px;
 }
 
-.agent-tags {
-  display:flex; flex-wrap:wrap; gap:6px;
-}
+.agent-tags { display:flex; flex-wrap:wrap; gap:6px; }
 
 .tag {
   font-size:11px;
@@ -215,15 +366,14 @@ header {
 .teal .agent-arrow { color:#00e5c0; }
 .coral .agent-arrow { color:#ff4d6d; }
 .amber .agent-arrow { color:#ffb347; }
-
 .agent-card:hover .agent-arrow { opacity:1; }
 
-/* CHAT */
+/* ─── CHAT ─── */
 .chat-wrap {
   display:none;
   background:rgba(255,255,255,0.02);
   border-radius:16px;
-  border:1px solid rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.07);
   overflow:hidden;
   margin-bottom:60px;
 }
@@ -246,21 +396,18 @@ header {
 .chat-header-name {
   font-size:14px; font-weight:900;
   color:#fff; text-transform:uppercase;
-  font-style:italic;
-  letter-spacing:0.02em;
+  font-style:italic; letter-spacing:0.02em;
 }
 
 .chat-header-status {
   font-size:12px; color:rgba(255,255,255,0.3);
   margin-left:auto; display:flex;
-  align-items:center; gap:5px;
-  font-family:Arial,sans-serif;
+  align-items:center; gap:5px; font-family:Arial,sans-serif;
 }
 
 .status-dot {
   width:6px; height:6px; border-radius:50%;
-  background:#00e5c0;
-  box-shadow:0 0 8px #00e5c0;
+  background:#00e5c0; box-shadow:0 0 8px #00e5c0;
 }
 
 .chat-back {
@@ -279,24 +426,18 @@ header {
 
 .msg {
   max-width:80%; font-size:14px; line-height:1.55;
-  padding:11px 15px; border-radius:12px;
-  font-family:Arial,sans-serif;
+  padding:11px 15px; border-radius:12px; font-family:Arial,sans-serif;
 }
 
 .msg.bot {
   background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.07);
   color:rgba(255,255,255,0.82);
   align-self:flex-start;
   border-radius:4px 12px 12px 12px;
 }
 
-.msg.user {
-  align-self:flex-end;
-  border-radius:12px 12px 4px 12px;
-  color:#fff;
-}
-
+.msg.user { align-self:flex-end; border-radius:12px 12px 4px 12px; color:#fff; }
 .msg.blue-user { background:rgba(33,118,255,0.2); border:1px solid rgba(33,118,255,0.25); }
 .msg.purple-user { background:rgba(155,111,255,0.2); border:1px solid rgba(155,111,255,0.25); }
 .msg.teal-user { background:rgba(0,229,192,0.2); border:1px solid rgba(0,229,192,0.25); }
@@ -320,8 +461,7 @@ header {
 }
 
 .chat-input {
-  flex:1;
-  background:rgba(255,255,255,0.04);
+  flex:1; background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.09);
   border-radius:10px; padding:10px 14px;
   color:#fff; font-size:14px; resize:none;
@@ -336,8 +476,7 @@ header {
   width:42px; height:42px; border-radius:10px;
   border:none; cursor:pointer;
   display:flex; align-items:center; justify-content:center;
-  font-size:16px; transition:opacity 0.15s, transform 0.1s;
-  flex-shrink:0; font-style:italic; font-weight:900;
+  font-size:16px; transition:opacity 0.15s, transform 0.1s; flex-shrink:0;
 }
 .send-btn:hover { opacity:0.85; }
 .send-btn:active { transform:scale(0.95); }
@@ -347,19 +486,6 @@ header {
 .teal-btn { background:#00e5c0; color:#000; box-shadow:0 0 20px rgba(0,229,192,0.5); }
 .coral-btn { background:#ff4d6d; color:#fff; box-shadow:0 0 20px rgba(255,77,109,0.5); }
 .amber-btn { background:#ffb347; color:#000; box-shadow:0 0 20px rgba(255,179,71,0.5); }
-
-/* CTA BUTTON STYLE like website */
-.cta-btn {
-  display:inline-block;
-  padding:14px 36px;
-  border-radius:60px;
-  font-size:14px; font-weight:900;
-  text-transform:uppercase; font-style:italic;
-  letter-spacing:0.06em; cursor:pointer;
-  border:none; transition:opacity 0.15s, transform 0.1s;
-}
-.cta-btn:hover { opacity:0.88; transform:scale(1.02); }
-.cta-btn:active { transform:scale(0.97); }
 
 .summary-card {
   background:rgba(0,0,0,0.4);
@@ -392,13 +518,10 @@ header {
 
 .btn-cancel {
   padding:10px 22px; border-radius:60px;
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.15);
-  font-size:13px; color:rgba(255,255,255,0.4);
-  cursor:pointer; font-family:inherit;
-  text-transform:uppercase; font-style:italic;
-  letter-spacing:0.05em; font-weight:900;
-  transition:border-color 0.15s;
+  background:transparent; border:1px solid rgba(255,255,255,0.15);
+  font-size:13px; color:rgba(255,255,255,0.4); cursor:pointer;
+  font-family:inherit; text-transform:uppercase; font-style:italic;
+  letter-spacing:0.05em; font-weight:900; transition:border-color 0.15s;
 }
 .btn-cancel:hover { border-color:rgba(255,255,255,0.3); }
 
@@ -424,128 +547,263 @@ header {
 <div class="wrap">
 
   <header>
-    <img src="https://static.wixstatic.com/media/273131_0eff1219462c4e058575a69a8c22a8e5~mv2.png/v1/fill/w_41,h_41,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/50090D77-FCD1-46F9-95AB-A8AE4C76B716.png" class="logo-img" alt="Kairos">
+    <img src="https://static.wixstatic.com/media/273131_0eff1219462c4e058575a69a8c22a8e5~mv2.png/v1/fill/w_41,h_41,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/50090D77-FCD1-46F9-95AB-A8AE4C76B716.png" class="logo-img" alt="Built By Kairos">
     <span class="logo-name">Built By Kairos</span>
-    <span class="logo-tag">Agent Hub</span>
+    <div id="userPill" class="user-pill" style="display:none" onclick="logout()">
+      <div class="user-dot" id="userInitial"></div>
+      <span id="userName"></span>
+      <span style="opacity:0.4;font-size:11px;margin-left:4px;">Sign out</span>
+    </div>
   </header>
 
-  <div class="hero" id="heroBlock">
-    <h1>Which bot do<br>you need?</h1>
-    <p>Select an agent. It will ask everything it needs, then generate your deliverable automatically.</p>
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-title">Welcome back</div>
+      <div class="login-sub">Sign in to access your Kairos Agent Hub. Active subscribers only.</div>
+      <label class="field-label">Email address</label>
+      <input type="email" class="field-input" id="loginEmail" placeholder="you@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+      <label class="field-label">Password</label>
+      <input type="password" class="field-input" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
   </div>
 
-  <div class="agents" id="agentGrid">
-
-    <div class="agent-card blue" onclick="openAgent('website')">
-      <div class="agent-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="14" rx="2"/>
-          <path d="M8 21h8M12 17v4"/>
-          <path d="M3 7h18"/>
-          <circle cx="6" cy="5" r="0.8" fill="currentColor" stroke="none"/>
-          <circle cx="9" cy="5" r="0.8" fill="currentColor" stroke="none"/>
-        </svg>
-      </div>
-      <div class="agent-name">Website Bot</div>
-      <div class="agent-desc">Full multi-page websites — service-based or ecommerce. Complete HTML with inline CSS, ready to deploy.</div>
-      <div class="agent-tags">
-        <span class="tag">Service-based</span>
-        <span class="tag">Ecommerce</span>
-        <span class="tag">3 pages</span>
-      </div>
-      <span class="agent-arrow">&#8599;</span>
+  <!-- HUB SCREEN -->
+  <div id="hubScreen">
+    <div class="hero" id="heroBlock">
+      <h1>Which bot do<br>you need?</h1>
+      <p>Select an agent. It will ask everything it needs, then generate your deliverable automatically.</p>
     </div>
 
-    <div class="agent-card purple" onclick="openAgent('email')">
-      <div class="agent-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="4" width="20" height="16" rx="2"/>
-          <path d="M2 7l10 7 10-7"/>
-        </svg>
+    <div class="agents" id="agentGrid">
+
+      <div class="agent-card blue" onclick="openAgent('website')">
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4M3 7h18"/>
+            <circle cx="6" cy="5" r="0.8" fill="#2176FF" stroke="none"/>
+            <circle cx="9" cy="5" r="0.8" fill="#2176FF" stroke="none"/>
+          </svg>
+        </div>
+        <div class="agent-name">Website Bot</div>
+        <div class="agent-desc">Full multi-page websites — service-based or ecommerce. Complete HTML with inline CSS, ready to deploy.</div>
+        <div class="agent-tags">
+          <span class="tag">Service-based</span>
+          <span class="tag">Ecommerce</span>
+          <span class="tag">3 pages</span>
+        </div>
+        <span class="agent-arrow">&#8599;</span>
       </div>
-      <div class="agent-name">Email Bot</div>
-      <div class="agent-desc">High-converting email sequences — welcome, nurture, launch, re-engagement and sales flows.</div>
-      <div class="agent-tags">
-        <span class="tag">Sequences</span>
-        <span class="tag">Launch</span>
-        <span class="tag">Nurture</span>
+
+      <div class="agent-card purple" onclick="openAgent('email')">
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M2 7l10 7 10-7"/>
+          </svg>
+        </div>
+        <div class="agent-name">Email Bot</div>
+        <div class="agent-desc">High-converting email sequences — welcome, nurture, launch, re-engagement and sales flows.</div>
+        <div class="agent-tags">
+          <span class="tag">Sequences</span>
+          <span class="tag">Launch</span>
+          <span class="tag">Nurture</span>
+        </div>
+        <span class="agent-arrow">&#8599;</span>
       </div>
-      <span class="agent-arrow">&#8599;</span>
+
+      <div class="agent-card teal" onclick="openAgent('ads')">
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="agent-name">Ads Bot</div>
+        <div class="agent-desc">Meta ads, UGC scripts, hooks, TikTok and YouTube ad copy. Static and video formats built to convert.</div>
+        <div class="agent-tags">
+          <span class="tag">Meta</span>
+          <span class="tag">UGC</span>
+          <span class="tag">Hook packs</span>
+        </div>
+        <span class="agent-arrow">&#8599;</span>
+      </div>
+
+      <div class="agent-card coral" onclick="openAgent('social')">
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2"/>
+            <path d="M12 18h.01M9 6h6M9 10h6M9 14h3"/>
+          </svg>
+        </div>
+        <div class="agent-name">Social Bot</div>
+        <div class="agent-desc">Reels scripts, captions, story sequences and 30-day content plans across Instagram, TikTok and LinkedIn.</div>
+        <div class="agent-tags">
+          <span class="tag">Reels</span>
+          <span class="tag">Captions</span>
+          <span class="tag">Content plan</span>
+        </div>
+        <span class="agent-arrow">&#8599;</span>
+      </div>
+
+      <div class="agent-card amber" onclick="openAgent('landing')">
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="14" rx="2"/>
+            <path d="M3 7h18M8 12h8M8 15h5"/>
+            <path d="M17 18l2 3"/>
+            <circle cx="16.5" cy="17.5" r="1" fill="#ffb347" stroke="none"/>
+          </svg>
+        </div>
+        <div class="agent-name">Landing Page Bot</div>
+        <div class="agent-desc">Single-page converters — sales pages, lead gen, book-a-call, webinar and product pages.</div>
+        <div class="agent-tags">
+          <span class="tag">Sales page</span>
+          <span class="tag">Lead gen</span>
+          <span class="tag">Book a call</span>
+        </div>
+        <span class="agent-arrow">&#8599;</span>
+      </div>
+
     </div>
 
-    <div class="agent-card teal" onclick="openAgent('ads')">
-      <div class="agent-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"/>
-          <path d="M12 6v6l4 2"/>
-          <path d="M9 3.5C9 3.5 8 7 12 7s3-3.5 3-3.5"/>
-        </svg>
+    <div class="chat-wrap" id="chatWrap">
+      <div class="chat-header" id="chatHeader"></div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">&#10148;</button>
       </div>
-      <div class="agent-name">Ads Bot</div>
-      <div class="agent-desc">Meta ads, UGC scripts, hooks, TikTok and YouTube ad copy. Static and video formats built to convert.</div>
-      <div class="agent-tags">
-        <span class="tag">Meta</span>
-        <span class="tag">UGC</span>
-        <span class="tag">Hook packs</span>
-      </div>
-      <span class="agent-arrow">&#8599;</span>
-    </div>
-
-    <div class="agent-card coral" onclick="openAgent('social')">
-      <div class="agent-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="5" y="2" width="14" height="20" rx="2"/>
-          <path d="M12 18h.01"/>
-          <path d="M9 6h6M9 10h6M9 14h3"/>
-        </svg>
-      </div>
-      <div class="agent-name">Social Bot</div>
-      <div class="agent-desc">Reels scripts, captions, story sequences and 30-day content plans across Instagram, TikTok and LinkedIn.</div>
-      <div class="agent-tags">
-        <span class="tag">Reels</span>
-        <span class="tag">Captions</span>
-        <span class="tag">Content plan</span>
-      </div>
-      <span class="agent-arrow">&#8599;</span>
-    </div>
-
-    <div class="agent-card amber" onclick="openAgent('landing')">
-      <div class="agent-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="14" rx="2"/>
-          <path d="M3 7h18"/>
-          <path d="M8 12h8M8 15h5"/>
-          <path d="M16 17l2 4"/>
-          <circle cx="16" cy="17" r="1" fill="currentColor" stroke="none"/>
-        </svg>
-      </div>
-      <div class="agent-name">Landing Page Bot</div>
-      <div class="agent-desc">Single-page converters — sales pages, lead gen, book-a-call, webinar and product pages.</div>
-      <div class="agent-tags">
-        <span class="tag">Sales page</span>
-        <span class="tag">Lead gen</span>
-        <span class="tag">Book a call</span>
-      </div>
-      <span class="agent-arrow">&#8599;</span>
-    </div>
-
-  </div>
-
-  <div class="chat-wrap" id="chatWrap">
-    <div class="chat-header" id="chatHeader"></div>
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input-wrap">
-      <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()">&#10148;</button>
     </div>
   </div>
 
 </div>
 
 <script>
-const WEBHOOK_BASE = 'https://alexanderrendina.app.n8n.cloud/webhook/';
-const USER_EMAIL = 'alexanderrendin711@gmail.com';
+// ─── SUPABASE ───
+const SUPABASE_URL = 'https://guyismmmddtkzoxzccjr.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1eWlzbW1tZGR0a3pveHpjY2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NTQxNjgsImV4cCI6MjA5NDMzMDE2OH0.KRcRdAzRzrWKcE-eP1NrZ-5I5p0xKigmMpkGWuGgRMk';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
+const WEBHOOK_BASE = 'https://alexanderrendina.app.n8n.cloud/webhook/';
+
+let currentUser = null;
+let currentAgent = null;
+let questionIndex = 0;
+let answers = [];
+let awaitingConfirm = false;
+let generating = false;
+
+// ─── AUTH ───
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+
+  if (!email || !password) {
+    showError('Please enter your email and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  err.classList.remove('show');
+
+  try {
+    const { data: authData, error: authError } = await sb.auth.signInWithPassword({ email, password });
+
+    if (authError) {
+      showError('Incorrect email or password. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      return;
+    }
+
+    // Check clients table for active subscription
+    const { data: clientData, error: clientError } = await sb
+      .from('clients')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (clientError || !clientData) {
+      showError('No active account found. Please contact support.');
+      await sb.auth.signOut();
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      return;
+    }
+
+    if (!clientData.is_active) {
+      showError('Your subscription is inactive. Please contact support.');
+      await sb.auth.signOut();
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      return;
+    }
+
+    currentUser = clientData;
+    showHub();
+
+  } catch(e) {
+    showError('Something went wrong. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+}
+
+function showError(msg) {
+  const err = document.getElementById('loginError');
+  err.textContent = msg;
+  err.classList.add('show');
+}
+
+function showHub() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('hubScreen').style.display = 'block';
+  document.getElementById('userPill').style.display = 'flex';
+
+  const name = currentUser.full_name || currentUser.email;
+  const initial = name.charAt(0).toUpperCase();
+  document.getElementById('userInitial').textContent = initial;
+  document.getElementById('userName').textContent = name.split(' ')[0];
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('hubScreen').style.display = 'none';
+  document.getElementById('userPill').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'Sign In';
+}
+
+// Check if already logged in on page load
+window.addEventListener('load', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    const { data: clientData } = await sb
+      .from('clients')
+      .select('*')
+      .eq('email', session.user.email)
+      .single();
+    if (clientData && clientData.is_active) {
+      currentUser = clientData;
+      showHub();
+    }
+  }
+});
+
+// ─── AGENTS ───
 const agents = {
   website: {
     name:'Website Bot', color:'blue', webhook:'website-agent',
@@ -560,7 +818,7 @@ const agents = {
       "Any specific colours, fonts, or design preferences? Or a brand you admire the look of?",
       "Do you have existing taglines, key messages, or brand language I should use?",
       "Anything you specifically want to avoid — topics, styles, or competitors you don't want to resemble?",
-      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+      "What's your deadline for this deliverable? (e.g. 2026-05-30)"
     ]
   },
   email: {
@@ -576,12 +834,12 @@ const agents = {
       "Describe the brand voice. How should these emails sound? (e.g. conversational, bold, empathetic, direct)",
       "What platform are these going out on? (e.g. Klaviyo, ActiveCampaign, Mailchimp)",
       "Any specific hooks, stories, or angles you want used? Or topics to avoid?",
-      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+      "What's your deadline for this deliverable? (e.g. 2026-05-30)"
     ]
   },
   ads: {
     name:'Ads Bot', color:'teal', webhook:'ads-agent',
-    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#00e5c0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>`,
+    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#00e5c0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`,
     questions:[
       "Welcome. What's the brand or business these ads are for?",
       "What type of ad content do you need? (e.g. static Meta ad, video script, UGC script, hook pack, TikTok, YouTube)",
@@ -592,7 +850,7 @@ const agents = {
       "Describe the tone and energy. Urgent, inspirational, educational, conversational, or bold?",
       "Any existing winning hooks or angles to build on? Or competitors doing it well?",
       "Any compliance requirements or things that cannot be said?",
-      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+      "What's your deadline for this deliverable? (e.g. 2026-05-30)"
     ]
   },
   social: {
@@ -608,12 +866,12 @@ const agents = {
       "Describe the brand voice for social. Casual or polished? Educational or entertaining?",
       "What topics, themes or content pillars should be covered?",
       "Any content formats or styles you love or want to avoid?",
-      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+      "What's your deadline for this deliverable? (e.g. 2026-05-30)"
     ]
   },
   landing: {
     name:'Landing Page Bot', color:'amber', webhook:'landing-page-agent',
-    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#ffb347" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 7h18"/><path d="M8 12h8M8 15h5"/><path d="M17 18l2 3"/><circle cx="16.5" cy="17.5" r="1" fill="#ffb347" stroke="none"/></svg>`,
+    iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="#ffb347" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 7h18"/><path d="M8 12h8M8 15h5"/><path d="M17 18l2 3"/></svg>`,
     questions:[
       "Welcome. What's the brand or business this landing page is for?",
       "What type of landing page do you need? (e.g. sales page, lead gen, book a call, webinar, product page)",
@@ -624,124 +882,121 @@ const agents = {
       "What's the biggest transformation or result this offer delivers?",
       "Do you have testimonials, proof points, or social proof to include?",
       "Any design preferences — colours, style, brands you admire or want to avoid?",
-      "What's your deadline for this deliverable? (e.g. 2026-04-30)"
+      "What's your deadline for this deliverable? (e.g. 2026-05-30)"
     ]
   }
 };
 
-let currentAgent=null, questionIndex=0, answers=[], awaitingConfirm=false, generating=false;
-
-function openAgent(key){
-  currentAgent=agents[key]; questionIndex=0; answers=[]; awaitingConfirm=false;
-  document.getElementById('agentGrid').style.display='none';
-  document.getElementById('heroBlock').style.display='none';
-  const wrap=document.getElementById('chatWrap');
-  wrap.className='chat-wrap active';
-  const c=currentAgent.color;
-  document.getElementById('chatHeader').innerHTML=`
+function openAgent(key) {
+  currentAgent = agents[key]; questionIndex = 0; answers = []; awaitingConfirm = false;
+  document.getElementById('agentGrid').style.display = 'none';
+  document.getElementById('heroBlock').style.display = 'none';
+  const wrap = document.getElementById('chatWrap');
+  wrap.className = 'chat-wrap active';
+  const c = currentAgent.color;
+  document.getElementById('chatHeader').innerHTML = `
     <button class="chat-back" onclick="goBack()">&#8592; Back</button>
     <div class="chat-header-icon ${c}-btn">${currentAgent.iconSvg}</div>
     <span class="chat-header-name">${currentAgent.name}</span>
     <span class="chat-header-status"><span class="status-dot"></span>Online</span>
   `;
-  const sb=document.getElementById('sendBtn');
-  sb.className=`send-btn ${c}-btn`;
-  document.getElementById('chatMessages').innerHTML='';
-  setTimeout(()=>addBotMessage(currentAgent.questions[0]),400);
+  document.getElementById('sendBtn').className = `send-btn ${c}-btn`;
+  document.getElementById('chatMessages').innerHTML = '';
+  setTimeout(() => addBotMessage(currentAgent.questions[0]), 400);
 }
 
-function goBack(){
-  document.getElementById('chatWrap').className='chat-wrap';
-  document.getElementById('agentGrid').style.display='grid';
-  document.getElementById('heroBlock').style.display='block';
-  currentAgent=null;
+function goBack() {
+  document.getElementById('chatWrap').className = 'chat-wrap';
+  document.getElementById('agentGrid').style.display = 'grid';
+  document.getElementById('heroBlock').style.display = 'block';
+  currentAgent = null;
 }
 
-function addBotMessage(text){
-  const m=document.getElementById('chatMessages');
-  const t=document.createElement('div');
-  t.className='msg bot typing';
-  t.innerHTML='<span></span><span></span><span></span>';
+function addBotMessage(text) {
+  const m = document.getElementById('chatMessages');
+  const t = document.createElement('div');
+  t.className = 'msg bot typing';
+  t.innerHTML = '<span></span><span></span><span></span>';
   m.appendChild(t); scrollBottom();
-  setTimeout(()=>{
+  setTimeout(() => {
     t.remove();
-    const msg=document.createElement('div');
-    msg.className='msg bot';
-    msg.innerHTML=text;
+    const msg = document.createElement('div');
+    msg.className = 'msg bot';
+    msg.innerHTML = text;
     m.appendChild(msg); scrollBottom();
-  },700);
+  }, 700);
 }
 
-function addUserMessage(text){
-  const m=document.getElementById('chatMessages');
-  const msg=document.createElement('div');
-  msg.className=`msg user ${currentAgent.color}-user`;
-  msg.textContent=text;
+function addUserMessage(text) {
+  const m = document.getElementById('chatMessages');
+  const msg = document.createElement('div');
+  msg.className = `msg user ${currentAgent.color}-user`;
+  msg.textContent = text;
   m.appendChild(msg); scrollBottom();
 }
 
-function scrollBottom(){
-  const m=document.getElementById('chatMessages');
-  setTimeout(()=>m.scrollTop=m.scrollHeight,50);
+function scrollBottom() {
+  const m = document.getElementById('chatMessages');
+  setTimeout(() => m.scrollTop = m.scrollHeight, 50);
 }
 
-function handleKey(e){
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
-function autoResize(el){
-  el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight,120)+'px';
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-function sendMessage(){
-  const input=document.getElementById('chatInput');
-  const text=input.value.trim();
-  if(!text||generating)return;
-  input.value=''; input.style.height='auto';
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || generating) return;
+  input.value = ''; input.style.height = 'auto';
   addUserMessage(text);
-  if(awaitingConfirm){
-    const l=text.toLowerCase();
-    if(l.includes('yes')||l.includes('generate')||l.includes('go')||l.includes('confirm')||l.includes('do it')){
+  if (awaitingConfirm) {
+    const l = text.toLowerCase();
+    if (l.includes('yes') || l.includes('generate') || l.includes('go') || l.includes('confirm') || l.includes('do it')) {
       fireWebhook();
     } else {
-      awaitingConfirm=false; questionIndex=0; answers=[];
-      setTimeout(()=>addBotMessage("No problem. Let's start fresh. "+currentAgent.questions[0]),500);
+      awaitingConfirm = false; questionIndex = 0; answers = [];
+      setTimeout(() => addBotMessage("No problem. Let's start fresh. " + currentAgent.questions[0]), 500);
     }
     return;
   }
   answers.push(text);
   questionIndex++;
-  if(questionIndex<currentAgent.questions.length){
-    setTimeout(()=>addBotMessage(currentAgent.questions[questionIndex]),500);
+  if (questionIndex < currentAgent.questions.length) {
+    setTimeout(() => addBotMessage(currentAgent.questions[questionIndex]), 500);
   } else {
     showSummary();
   }
 }
 
-function showSummary(){
-  awaitingConfirm=true;
-  const q=currentAgent.questions;
-  const a=answers;
-  setTimeout(()=>{
-    const m=document.getElementById('chatMessages');
-    const t=document.createElement('div');
-    t.className='msg bot typing';
-    t.innerHTML='<span></span><span></span><span></span>';
+function showSummary() {
+  awaitingConfirm = true;
+  const q = currentAgent.questions;
+  const a = answers;
+  setTimeout(() => {
+    const m = document.getElementById('chatMessages');
+    const t = document.createElement('div');
+    t.className = 'msg bot typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
     m.appendChild(t); scrollBottom();
-    setTimeout(()=>{
+    setTimeout(() => {
       t.remove();
-      const card=document.createElement('div');
-      card.className='msg bot'; card.style.maxWidth='94%';
-      let rows='';
-      const labels=['Business / Brand','What they do','Target audience','Primary goal','Type / Format','Brand voice & tone','Design preferences','Existing brand assets','What to avoid','Deadline'];
-      labels.forEach((lbl,i)=>{
-        rows+=`<div class="summary-row"><span class="summary-key">${lbl}</span><span class="summary-val">${a[i]||'—'}</span></div>`;
+      const card = document.createElement('div');
+      card.className = 'msg bot'; card.style.maxWidth = '94%';
+      const labels = ['Business / Brand','What they do','Target audience','Primary goal','Type / Format','Brand voice & tone','Design preferences','Existing brand assets','What to avoid','Deadline'];
+      let rows = '';
+      labels.forEach((lbl, i) => {
+        rows += `<div class="summary-row"><span class="summary-key">${lbl}</span><span class="summary-val">${a[i] || '—'}</span></div>`;
       });
-      const colorMap={blue:'#2176FF',purple:'#9b6fff',teal:'#00e5c0',coral:'#ff4d6d',amber:'#ffb347'};
-      const col=colorMap[currentAgent.color];
-      const textCol=(currentAgent.color==='teal'||currentAgent.color==='amber')?'#000':'#fff';
-      card.innerHTML=`
+      const colorMap = { blue:'#2176FF', purple:'#9b6fff', teal:'#00e5c0', coral:'#ff4d6d', amber:'#ffb347' };
+      const col = colorMap[currentAgent.color];
+      const textCol = (currentAgent.color === 'teal' || currentAgent.color === 'amber') ? '#000' : '#fff';
+      card.innerHTML = `
         <div class="summary-card">
           <div class="s-title">Brief Summary</div>
           ${rows}
@@ -753,130 +1008,117 @@ function showSummary(){
         </div>
       `;
       m.appendChild(card); scrollBottom();
-    },800);
-  },300);
+    }, 800);
+  }, 300);
 }
 
-function cancelGenerate(){
-  awaitingConfirm=false; questionIndex=0; answers=[];
-  addBotMessage("No problem. Let's start again. "+currentAgent.questions[0]);
+function cancelGenerate() {
+  awaitingConfirm = false; questionIndex = 0; answers = [];
+  addBotMessage("No problem. Let's start again. " + currentAgent.questions[0]);
 }
 
-async function fireWebhook(){
-  generating=true; awaitingConfirm=false;
-  const a=answers; const agent=currentAgent;
-  const agentKey=Object.keys(agents).find(k=>agents[k]===agent);
-  const briefMap={
-    website:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]} — Target: ${a[2]} — Goal: ${a[3]} — Type: ${a[4]} | Website | ${a[3]} | ${a[9]} | ${a[5]}`,
-    email:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]}, ${a[2]} emails — Audience: ${a[3]} — Offer: ${a[4]} | Email | ${a[5]} | ${a[9]} | ${a[6]}`,
-    ads:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]} — Offer: ${a[2]} — Audience: ${a[3]} | ${a[5]} | ${a[4]} | ${a[9]} | ${a[6]}`,
-    social:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]}, ${a[2]} pieces — Platform: ${a[3]} — Audience: ${a[4]} | ${a[3]} | ${a[5]} | ${a[9]} | ${a[6]}`,
-    landing:()=>`BRIEF | ${a[0]} | ${USER_EMAIL} | ${a[1]} — Offer: ${a[2]} — Audience: ${a[3]} | Landing Page | ${a[4]} | ${a[9]} | ${a[5]}`
+async function fireWebhook() {
+  generating = true; awaitingConfirm = false;
+  const a = answers;
+  const agent = currentAgent;
+  const agentKey = Object.keys(agents).find(k => agents[k] === agent);
+
+  // Use real client data from Supabase profile
+  const clientName = currentUser.full_name || 'Client';
+  const clientEmail = currentUser.email;
+  const telegramChatId = currentUser.telegram_chat_id || '8654408320';
+  const notionPortalId = currentUser.notion_portal_id || '';
+
+  const briefMap = {
+    website: () => `BRIEF | ${clientName} | ${clientEmail} | ${a[1]} — Target: ${a[2]} — Goal: ${a[3]} — Type: ${a[4]} | Website | ${a[3]} | ${a[9]} | ${a[5]}`,
+    email: () => `BRIEF | ${clientName} | ${clientEmail} | ${a[1]}, ${a[2]} emails — Audience: ${a[3]} — Offer: ${a[4]} | Email | ${a[5]} | ${a[9]} | ${a[6]}`,
+    ads: () => `BRIEF | ${clientName} | ${clientEmail} | ${a[1]} — Offer: ${a[2]} — Audience: ${a[3]} | ${a[5]} | ${a[4]} | ${a[9]} | ${a[6]}`,
+    social: () => `BRIEF | ${clientName} | ${clientEmail} | ${a[1]}, ${a[2]} pieces — Platform: ${a[3]} — Audience: ${a[4]} | ${a[3]} | ${a[5]} | ${a[9]} | ${a[6]}`,
+    landing: () => `BRIEF | ${clientName} | ${clientEmail} | ${a[1]} — Offer: ${a[2]} — Audience: ${a[3]} | Landing Page | ${a[4]} | ${a[9]} | ${a[5]}`
   };
-  const brief=briefMap[agentKey]();
-  const webhookUrl=WEBHOOK_BASE+agent.webhook;
+
+  const brief = briefMap[agentKey]();
+  const webhookUrl = WEBHOOK_BASE + agent.webhook;
+
   addBotMessage('Firing your brief to the Kairos system now. This usually takes 30–60 seconds...');
+
   try {
-    const res=await fetch(webhookUrl,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chatId:'8654408320',message:brief})
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chatId: telegramChatId,
+        message: brief,
+        notion_portal_id: notionPortalId
+      })
     });
-    const data=await res.json();
-    setTimeout(()=>{
-      const m=document.getElementById('chatMessages');
-      const card=document.createElement('div');
-      card.className='msg bot'; card.style.maxWidth='94%';
-      card.innerHTML=`
+    const data = await res.json();
+    setTimeout(() => {
+      const m = document.getElementById('chatMessages');
+      const card = document.createElement('div');
+      card.className = 'msg bot'; card.style.maxWidth = '94%';
+      card.innerHTML = `
         <div class="result-card">
           <div style="font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:6px;color:#00e5c0;font-size:13px;letter-spacing:0.06em;">Deliverable Ready</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:10px;">Your Google Doc has been created and saved to Drive.</div>
-          <a href="${data.doc_url||'#'}" target="_blank" style="font-weight:900;font-style:italic;text-transform:uppercase;font-size:13px;letter-spacing:0.04em;">Open Your Deliverable &#8599;</a>
+          <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:10px;">Your Google Doc has been created. Check Telegram for the link or open it below.</div>
+          <a href="${data.doc_url || '#'}" target="_blank" style="font-weight:900;font-style:italic;text-transform:uppercase;font-size:13px;letter-spacing:0.04em;">Open Your Deliverable &#8599;</a>
         </div>
       `;
       m.appendChild(card); scrollBottom();
-      generating=false;
-    },1000);
-  } catch(err){
-    setTimeout(()=>{
+      generating = false;
+    }, 1000);
+  } catch(err) {
+    setTimeout(() => {
       addBotMessage('Brief sent to Kairos. Check your Telegram — your Google Doc link will arrive within 60 seconds.');
-      generating=false;
-    },500);
+      generating = false;
+    }, 500);
   }
 }
 
-// STAR BACKGROUND (extracted from builtbykairos.com)
-(function(){
-  var canvas=document.getElementById('stars');
-  var ctx=canvas.getContext('2d');
-  var stars=[],shoots=[],W,H;
-  var rainbow=['#e53935','#ff8f00','#fdd835','#43a047','#1e88e5','#8e24aa','#ffffff','#ffffff','#ffffff'];
+// ─── STAR BACKGROUND ───
+(function() {
+  var canvas = document.getElementById('stars');
+  var ctx = canvas.getContext('2d');
+  var stars = [], shoots = [], W, H;
+  var rainbow = ['#e53935','#ff8f00','#fdd835','#43a047','#1e88e5','#8e24aa','#ffffff','#ffffff','#ffffff'];
 
-  function resize(){
-    W=canvas.width=window.innerWidth;
-    H=canvas.height=window.innerHeight;
-  }
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   resize();
-  window.addEventListener('resize',resize);
+  window.addEventListener('resize', resize);
+  function rb(a, b) { return a + Math.random() * (b - a); }
 
-  function rb(a,b){return a+Math.random()*(b-a);}
-
-  for(var i=0;i<220;i++){
-    var c=Math.random()<0.08;
-    stars.push({
-      x:Math.random(),y:Math.random(),
-      r:rb(0.3,1.5),
-      alpha:rb(0.3,1),
-      ts:rb(0.004,0.015),
-      td:Math.random()<0.5?1:-1,
-      colour:c?rainbow[Math.floor(Math.random()*rainbow.length)]:'#ffffff',
-      glowing:c
-    });
+  for (var i = 0; i < 220; i++) {
+    var c = Math.random() < 0.08;
+    stars.push({ x: Math.random(), y: Math.random(), r: rb(0.3, 1.5), alpha: rb(0.3, 1), ts: rb(0.004, 0.015), td: Math.random() < 0.5 ? 1 : -1, colour: c ? rainbow[Math.floor(Math.random() * rainbow.length)] : '#ffffff', glowing: c });
   }
 
-  function newShoot(){
-    return{
-      x:Math.random()*W,y:Math.random()*H*0.5,
-      len:rb(80,200),speed:rb(6,14),
-      angle:Math.PI/4+rb(-0.2,0.2),
-      alpha:1,alive:true
-    };
-  }
+  function newShoot() { return { x: Math.random() * W, y: Math.random() * H * 0.5, len: rb(80, 200), speed: rb(6, 14), angle: Math.PI / 4 + rb(-0.2, 0.2), alpha: 1, alive: true }; }
+  var lastShoot = 0;
 
-  var lastShoot=0;
-
-  function frame(ts){
-    ctx.clearRect(0,0,W,H);
-    stars.forEach(function(s){
-      s.alpha+=s.ts*s.td;
-      if(s.alpha>=1){s.alpha=1;s.td=-1;}
-      if(s.alpha<=0.15){s.alpha=0.15;s.td=1;}
+  function frame(ts) {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(function(s) {
+      s.alpha += s.ts * s.td;
+      if (s.alpha >= 1) { s.alpha = 1; s.td = -1; }
+      if (s.alpha <= 0.15) { s.alpha = 0.15; s.td = 1; }
       ctx.save();
-      if(s.glowing){ctx.shadowColor=s.colour;ctx.shadowBlur=8;}
-      ctx.globalAlpha=s.alpha;
-      ctx.fillStyle=s.colour;
-      ctx.beginPath();
-      ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
-      ctx.fill();
+      if (s.glowing) { ctx.shadowColor = s.colour; ctx.shadowBlur = 8; }
+      ctx.globalAlpha = s.alpha; ctx.fillStyle = s.colour;
+      ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
-    if(ts-lastShoot>4500){shoots.push(newShoot());lastShoot=ts;}
-    shoots=shoots.filter(function(s){return s.alive;});
-    shoots.forEach(function(s){
-      ctx.save();
-      ctx.globalAlpha=s.alpha*0.9;
-      var g=ctx.createLinearGradient(s.x,s.y,s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
-      g.addColorStop(0,'rgba(255,255,255,0.9)');
-      g.addColorStop(1,'rgba(255,255,255,0)');
-      ctx.strokeStyle=g;ctx.lineWidth=1.5;
-      ctx.beginPath();
-      ctx.moveTo(s.x,s.y);
-      ctx.lineTo(s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
-      ctx.stroke();ctx.restore();
-      s.x+=Math.cos(s.angle)*s.speed;
-      s.y+=Math.sin(s.angle)*s.speed;
-      s.alpha-=0.016;
-      if(s.alpha<=0||s.x>W+50||s.y>H+50)s.alive=false;
+    if (ts - lastShoot > 4500) { shoots.push(newShoot()); lastShoot = ts; }
+    shoots = shoots.filter(function(s) { return s.alive; });
+    shoots.forEach(function(s) {
+      ctx.save(); ctx.globalAlpha = s.alpha * 0.9;
+      var g = ctx.createLinearGradient(s.x, s.y, s.x - Math.cos(s.angle) * s.len, s.y - Math.sin(s.angle) * s.len);
+      g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.strokeStyle = g; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - Math.cos(s.angle) * s.len, s.y - Math.sin(s.angle) * s.len);
+      ctx.stroke(); ctx.restore();
+      s.x += Math.cos(s.angle) * s.speed; s.y += Math.sin(s.angle) * s.speed;
+      s.alpha -= 0.016;
+      if (s.alpha <= 0 || s.x > W + 50 || s.y > H + 50) s.alive = false;
     });
     requestAnimationFrame(frame);
   }
